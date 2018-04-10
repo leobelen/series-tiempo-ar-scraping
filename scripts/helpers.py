@@ -1,11 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 """Funciones auxiliares"""
-
-from __future__ import unicode_literals
-from __future__ import print_function
-from __future__ import with_statement
 
 import os
 import shutil
@@ -13,12 +8,13 @@ from openpyxl import load_workbook
 import zipfile
 import datetime
 import time
-import urlparse
+from urllib import parse as urlparse
+
 import yaml
 import logging
 import logging.config
 import yaml
-import download
+from download import download
 
 from paths import CONFIG_DOWNLOADS_PATH
 from paths import CATALOGS_INDEX_PATH, CONFIG_GENERAL_PATH
@@ -42,23 +38,20 @@ def safe_sheet_name(string):
 
 
 def indicators_to_text(simple_dict):
-    text = "\n" + "\n".join(
-        "{}: {}".format(key.ljust(40), value)
-        for key, value in sorted(simple_dict.items(), key=lambda x: x[0])
-    )
+    text = "\n" + "\n".join("{}: {}".format(key.ljust(40), value)
+                            for key, value in sorted(
+                                list(simple_dict.items()), key=lambda x: x[0]))
     return text
 
 
 def timeit(method):
-
     def timed(*args, **kw):
         ts = time.time()
         result = method(*args, **kw)
         te = time.time()
 
-        print('{} ({}, {}) {%2.2f} sec'.format(
-            method.__name__, args, kw, te - ts)
-        )
+        print('{} ({}, {}) {%2.2f} sec'.format(method.__name__, args, kw,
+                                               te - ts))
         return result
 
     return timed
@@ -141,7 +134,7 @@ def get_ws_case_insensitive(wb, title):
 
 def find_ws_name(wb, name):
     """Busca una hoja en un workbook sin importar mayúsculas/minúsculas."""
-    if type(wb) == str or type(wb) == unicode:
+    if type(wb) == str or type(wb) == str:
         wb = load_workbook(wb, read_only=True, data_only=True)
 
     for sheetname in wb.sheetnames:
@@ -152,7 +145,7 @@ def find_ws_name(wb, name):
 
 
 def row_from_cell_coord(coord):
-    return int(filter(lambda x: x.isdigit(), coord))
+    return int([x for x in coord if x.isdigit()])
 
 
 def load_yaml(path):
@@ -187,11 +180,13 @@ def get_logger(name=__name__):
     ch.setLevel(selected_level)
 
     logging_formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s', '%Y-%m-%d %H:%M:%S')
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        '%Y-%m-%d %H:%M:%S')
     ch.setFormatter(logging_formatter)
     logger.addHandler(ch)
 
     return logger
+
 
 logger = get_logger(os.path.basename(__file__))
 
@@ -199,9 +194,9 @@ logger = get_logger(os.path.basename(__file__))
 def print_log_separator(logger, message):
     logger.info("=" * SEPARATOR_WIDTH)
     logger.info("|" + " " * (SEPARATOR_WIDTH - 2) + "|")
-    
+
     logger.info("|" + message.center(SEPARATOR_WIDTH - 2) + "|")
-    
+
     logger.info("|" + " " * (SEPARATOR_WIDTH - 2) + "|")
     logger.info("=" * SEPARATOR_WIDTH)
 
@@ -214,11 +209,11 @@ def get_catalog_download_config(catalog_id):
     try:
         configs = load_yaml(CONFIG_DOWNLOADS_PATH)
     except:
-        logger.warning("No se pudo cargar el archivo de configuración 'config_downloads.yaml'.")
+        logger.warning(
+            "No se pudo cargar el archivo de configuración 'config_downloads.yaml'."
+        )
         logger.warning("Utilizando configuración default...")
-        configs = {
-            "defaults": {}
-        }
+        configs = {"defaults": {}}
 
     default_config = configs["defaults"]
 
@@ -228,8 +223,8 @@ def get_catalog_download_config(catalog_id):
     if "sources" not in config:
         config["sources"] = {}
 
-    for key, value in default_config.items():
-        for subconfig in config.values():
+    for key, value in list(default_config.items()):
+        for subconfig in list(config.values()):
             if key not in subconfig:
                 subconfig[key] = value
 

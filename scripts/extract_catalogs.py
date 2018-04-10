@@ -1,16 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 """Genera un data.json a partir de un catálogo en excel.
 """
 
-from __future__ import unicode_literals
-from __future__ import print_function
-from __future__ import with_statement
 import os
 import sys
 import shutil
-import StringIO
+from io import StringIO
+
 import traceback
 import pandas as pd
 import arrow
@@ -39,6 +36,7 @@ logger = get_logger(os.path.basename(__file__))
 # pydatajson.ckan_reader modifica el root logger, agregando outputs no deseados
 # a la pantalla. Evitar que los logs se propaguen al root logger.
 logger.propagate = False
+
 
 def read_xlsx_catalog(catalog_xlsx_path, logger=None):
     """Lee catálogo en excel."""
@@ -73,8 +71,8 @@ def clean_catalog(catalog):
 
 def write_json_catalog(catalog_id, catalog, catalog_json_path):
     """Escribe catálogo en JSON y guarda una copia con fecha."""
-    catalog_backup_json_path = os.path.join(
-        BACKUP_CATALOG_DIR, catalog_id, "data-{}.json".format(TODAY))
+    catalog_backup_json_path = os.path.join(BACKUP_CATALOG_DIR, catalog_id,
+                                            "data-{}.json".format(TODAY))
 
     # crea los directorios necesarios
     ensure_dir_exists(os.path.dirname(catalog_json_path))
@@ -100,19 +98,19 @@ def validate_and_filter(catalog_id, catalog, warnings_log):
 
     # genera reporte de validación completo
     dj.validate_catalog(
-        only_errors=True, fmt="list",
+        only_errors=True,
+        fmt="list",
         export_path=os.path.join(
             reportes_catalog_dir,
-            EXTRACTION_MAIL_CONFIG["attachments"]["errors_report"])
-    )
+            EXTRACTION_MAIL_CONFIG["attachments"]["errors_report"]))
 
     # genera reporte de datasets para federación
     dj.generate_datasets_report(
-        catalog, harvest='valid',
+        catalog,
+        harvest='valid',
         export_path=os.path.join(
             reportes_catalog_dir,
-            EXTRACTION_MAIL_CONFIG["attachments"]["datasets_report"])
-    )
+            EXTRACTION_MAIL_CONFIG["attachments"]["datasets_report"]))
 
     # genera mensaje de reporte
     subject, message = generate_validation_message(
@@ -132,11 +130,13 @@ def _write_extraction_mail_texts(catalog_id, subject, message):
     reportes_catalog_dir = os.path.join(REPORTES_DIR, catalog_id)
     ensure_dir_exists(reportes_catalog_dir)
 
-    with open(os.path.join(reportes_catalog_dir,
-                           EXTRACTION_MAIL_CONFIG["subject"]), "wb") as f:
+    with open(
+            os.path.join(reportes_catalog_dir,
+                         EXTRACTION_MAIL_CONFIG["subject"]), "wb") as f:
         f.write(subject.encode("utf-8"))
-    with open(os.path.join(reportes_catalog_dir,
-                           EXTRACTION_MAIL_CONFIG["message"]), "wb") as f:
+    with open(
+            os.path.join(reportes_catalog_dir,
+                         EXTRACTION_MAIL_CONFIG["message"]), "wb") as f:
         f.write(message.encode("utf-8"))
 
 
@@ -154,10 +154,8 @@ def generate_validation_message(catalog_id, is_valid_catalog, warnings_log):
 
     # asunto del mail
     subject = "[{}] Validacion de catalogo '{}': {}".format(
-        server_environment,
-        catalog_id,
-        arrow.now().format("DD/MM/YYYY HH:mm")
-    )
+        server_environment, catalog_id,
+        arrow.now().format("DD/MM/YYYY HH:mm"))
 
     # mensaje del mail
     if isinstance(warnings_log, Exception):
@@ -173,7 +171,9 @@ def generate_validation_message(catalog_id, is_valid_catalog, warnings_log):
     return subject, message
 
 
-def process_catalog(catalog_id, catalog_format, catalog_url,
+def process_catalog(catalog_id,
+                    catalog_format,
+                    catalog_url,
                     catalogs_dir=CATALOGS_DIR):
     """Descarga y procesa el catálogo.
 
@@ -188,7 +188,8 @@ def process_catalog(catalog_id, catalog_format, catalog_url,
     """
 
     # loggea warnings en un objeto para el mensaje de reporte
-    warnings_log = StringIO.StringIO()
+    warnings_log = StringIO()
+
     fh = logging.StreamHandler(warnings_log)
     fh.setLevel(logging.WARNING)
     logger.addHandler(fh)
@@ -212,7 +213,7 @@ def process_catalog(catalog_id, catalog_format, catalog_url,
         if extension in ['xlsx', 'json']:
             config = get_catalog_download_config(catalog_id)["catalog"]
             catalog_input_path = catalog_input_path_template.format(
-                                                        "catalog." + extension)
+                "catalog." + extension)
 
             if is_http_or_https(catalog_url):
                 download_with_config(catalog_url, catalog_input_path, config)
@@ -242,16 +243,15 @@ def process_catalog(catalog_id, catalog_format, catalog_url,
                                                    warnings_log)
 
             logger.info('Escritura de catálogo en JSON')
-            write_json_catalog(
-                catalog_id, catalog_filtered,
-                catalog_path_template.format("data.json"))
+            write_json_catalog(catalog_id, catalog_filtered,
+                               catalog_path_template.format("data.json"))
 
             # logger.info('Escritura de catálogo en XLSX')
             # writers.write_xlsx_catalog(
             # catalog_filtered, catalog_path_template.format("catalog.xlsx"))
         else:
-            raise Exception("El catálogo {} no se pudo generar".format(
-                catalog_id))
+            raise Exception(
+                "El catálogo {} no se pudo generar".format(catalog_id))
 
         # genera reportes del catálogo
         # logger.info('Generación de reportes')
@@ -265,7 +265,7 @@ def process_catalog(catalog_id, catalog_format, catalog_url,
     except Exception as e:
         logger.error('Error al procesar el catálogo: {}'.format(catalog_id))
         for line in traceback.format_exc().splitlines():
-            logger.error(line.decode("utf8"))
+            logger.error(line)
         subject, message = generate_validation_message(catalog_id, False, e)
         _write_extraction_mail_texts(catalog_id, subject, message)
     finally:
@@ -281,12 +281,8 @@ def main():
 
     # procesa los catálogos
     for catalog_id in catalogs_index:
-        process_catalog(
-            catalog_id,
-            catalogs_index[catalog_id]["formato"],
-            catalogs_index[catalog_id]["url"],
-            CATALOGS_DIR
-        )
+        process_catalog(catalog_id, catalogs_index[catalog_id]["formato"],
+                        catalogs_index[catalog_id]["url"], CATALOGS_DIR)
 
     logger.info('>>> FIN DE LA EXTRACCION DE CATALOGOS <<<')
 

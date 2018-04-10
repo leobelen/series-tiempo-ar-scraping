@@ -1,11 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 """Decorador auxiliar"""
 
-from __future__ import unicode_literals
-from __future__ import print_function
-from __future__ import with_statement
 import os
 import sys
 
@@ -36,13 +32,14 @@ def profile(profiling_result_path):
                 fn(*args, **kwargs)
 
         return fn_decorated
+
     return fn_decorator
 
 
 @profile("data/test_output/profiling_test.png")
 def main():
-    scrape_datasets.main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4],
-                         replace=True)
+    scrape_datasets.main(
+        sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], replace=True)
 
 
 if __name__ == '__main__':

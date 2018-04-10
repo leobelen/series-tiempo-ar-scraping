@@ -1,12 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from __future__ import unicode_literals
-from __future__ import with_statement
 import os
 import codecs
 import sys
-import urlparse
+from urllib import parse as urlparse
 
 from paths import CATALOGS_DIR_INPUT, DIST_URLS_PATH, SCRAP_URLS_PATH
 from paths import get_distribution_download_dir
@@ -16,27 +14,26 @@ from helpers import download_with_config, get_catalog_download_config
 
 logger = get_logger(os.path.basename(__file__))
 
+
 def download_scraping_sources(urls):
     for entry in urls:
         catalog_id, scraping_url = entry.split()
-        
+
         config = get_catalog_download_config(catalog_id)["sources"]
-        
+
         logger.info("Descargando archivo de scraping para catalogo: {}".format(
-            catalog_id
-        ))
+            catalog_id))
 
         logger.info("URL: {}".format(scraping_url))
         logger.info("Comenzando...")
 
         catalog_scraping_sources_dir = get_catalog_scraping_sources_dir(
-            catalog_id
-        )
+            catalog_id)
 
         ensure_dir_exists(catalog_scraping_sources_dir)
         url = urlparse.urlparse(scraping_url)
         file = os.path.basename(url.path)
-        file_path = os.path.join(catalog_scraping_sources_dir, file)
+        file_path = os.path.join(str(catalog_scraping_sources_dir), str(file))
 
         try:
             download_with_config(scraping_url, file_path, config)
@@ -52,25 +49,20 @@ def download_distributions(urls):
         catalog_id, dataset_id, distribution_id, filename, url = parts
 
         config = get_catalog_download_config(catalog_id)["sources"]
-        
+
         logger.info(
             "Descargando archivo de distribucion: {} (catálogo {})".format(
-            distribution_id,
-            catalog_id
-        ))
+                distribution_id, catalog_id))
 
         logger.info("URL: {}".format(url))
         logger.info("Comenzando...")
 
         distribution_download_dir = get_distribution_download_dir(
-            CATALOGS_DIR_INPUT,
-            catalog_id,
-            dataset_id,
-            distribution_id
-        )
+            CATALOGS_DIR_INPUT, str(catalog_id), str(dataset_id),
+            str(distribution_id))
 
         ensure_dir_exists(distribution_download_dir)
-        file_path = os.path.join(distribution_download_dir, filename)
+        file_path = os.path.join(str(distribution_download_dir), str(filename))
 
         try:
             download_with_config(url, file_path, config)

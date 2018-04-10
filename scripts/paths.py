@@ -1,12 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 """Variables globales para facilitar la navegación de la estructura del repo
 """
 
-from __future__ import unicode_literals
-from __future__ import print_function
-from __future__ import with_statement
 import os
 import glob
 
@@ -50,36 +46,24 @@ SCRAPING_MAIL_CONFIG = {
 
 def get_distribution_download_dir(catalogs_dir, catalog_id, dataset_id,
                                   distribution_id):
-    return os.path.join(
-        catalogs_dir, catalog_id, "dataset", dataset_id,
-        "distribution", distribution_id, "download"
-    )
+    return os.path.join(catalogs_dir, catalog_id, "dataset", dataset_id,
+                        "distribution", distribution_id, "download")
 
 
 def get_catalog_scraping_sources_dir(catalog_id):
-    return os.path.join(
-        CATALOGS_DIR_INPUT,
-        catalog_id,
-        "sources"
-    )
+    return os.path.join(CATALOGS_DIR_INPUT, str(catalog_id), "sources")
 
 
 def get_catalog_datasets_dir(catalog_id):
-    return os.path.join(
-        CATALOGS_DIR,
-        catalog_id,
-        "dataset"
-    )
+    return os.path.join(CATALOGS_DIR, catalog_id, "dataset")
 
 
-def get_distribution_path(catalog_id, dataset_id, distribution_id,
+def get_distribution_path(catalog_id,
+                          dataset_id,
+                          distribution_id,
                           catalogs_dir=CATALOGS_DIR):
     distribution_download_dir = get_distribution_download_dir(
-        catalogs_dir,
-        catalog_id,
-        dataset_id,
-        distribution_id
-    )
+        catalogs_dir, catalog_id, dataset_id, distribution_id)
 
     glob_pattern = os.path.join(distribution_download_dir, "*.csv")
     distribution_csv_files = glob.glob(glob_pattern)
@@ -93,9 +77,8 @@ def get_distribution_path(catalog_id, dataset_id, distribution_id,
     else:
         raise Exception(
             "{} archivos para la distribucion {} del dataset {}\n{}".format(
-                len(distribution_csv_files), distribution_id,
-                dataset_id, glob_pattern)
-        )
+                len(distribution_csv_files), distribution_id, dataset_id,
+                glob_pattern))
 
 
 def get_catalog_path(catalog_id, catalogs_dir=CATALOGS_DIR):

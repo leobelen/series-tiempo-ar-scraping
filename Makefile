@@ -2,8 +2,8 @@
 SHELL = bash
 SERIES_TIEMPO_PIP ?= pip
 SERIES_TIEMPO_PYTHON ?= python
-VIRTUALENV = series-tiempo-ar-scraping
-CONDA_ENV = series-tiempo-ar-scraping
+VIRTUALENV = series
+#CONDA_ENV = series
 
 .PHONY: all \
 		clean \

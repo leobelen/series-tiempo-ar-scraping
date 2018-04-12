@@ -22,9 +22,9 @@ def download_scraping_sources(urls):
         config = get_catalog_download_config(catalog_id)["sources"]
 
         logger.info("Descargando archivo de scraping para catalogo: {}".format(
-            catalog_id))
+            str(catalog_id)))
 
-        logger.info("URL: {}".format(scraping_url))
+        logger.info("URL: {}".format(str(scraping_url)))
         logger.info("Comenzando...")
 
         catalog_scraping_sources_dir = get_catalog_scraping_sources_dir(
@@ -36,7 +36,7 @@ def download_scraping_sources(urls):
         file_path = os.path.join(str(catalog_scraping_sources_dir), str(file))
 
         try:
-            download_with_config(scraping_url, file_path, config)
+            download_with_config(str(scraping_url), str(file_path), config)
             logger.info("Archivo descargado")
         except Exception as e:
             logger.error("Error al descargar el archivo")

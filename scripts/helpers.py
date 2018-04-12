@@ -14,7 +14,7 @@ import yaml
 import logging
 import logging.config
 import yaml
-from download import download
+from download_utils import download, download_to_file
 
 from paths import CONFIG_DOWNLOADS_PATH
 from paths import CATALOGS_INDEX_PATH, CONFIG_GENERAL_PATH
@@ -149,7 +149,7 @@ def row_from_cell_coord(coord):
 
 
 def load_yaml(path):
-    with open(path) as config_file:
+    with open(path, encoding="utf-8") as config_file:
         return yaml.load(config_file)
 
 
@@ -232,4 +232,4 @@ def get_catalog_download_config(catalog_id):
 
 
 def download_with_config(url, file_path, config):
-    download.download_to_file(url, file_path, **config)
+    download_to_file(url, file_path, **config)

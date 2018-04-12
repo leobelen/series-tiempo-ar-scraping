@@ -18,7 +18,7 @@ from pprint import pprint
 
 from pydatajson.helpers import title_to_name
 from xlseries.strategies.clean.parse_time import TimeIsNotComposed
-from xlseries.xlseries import XlSeries
+from xlseries import XlSeries
 from series_tiempo_ar.validations import validate_distribution_scraping
 from series_tiempo_ar.validations import validate_distribution
 from series_tiempo_ar import TimeSeriesDataJson
@@ -764,10 +764,11 @@ def main(catalog_id,
 
 
 if __name__ == '__main__':
+    replace = False
     if len(sys.argv) == 2:
         replace = True if sys.argv[1] == "replace" else False
-
-    with open(CATALOGS_INDEX_PATH) as config_file:
+    
+    with open(CATALOGS_INDEX_PATH, encoding="utf-8") as config_file:
         catalogs_index = yaml.load(config_file)
 
     helpers.print_log_separator(logger, "Scraping de catálogos")
